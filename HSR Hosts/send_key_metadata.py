@@ -1,4 +1,5 @@
 # This script sends metadata to Ansible about the newly generated key
+# Note that the key itself is not sent.
 import os
 import json
 

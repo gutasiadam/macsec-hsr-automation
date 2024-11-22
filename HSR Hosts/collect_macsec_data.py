@@ -2,9 +2,16 @@ import json
 import subprocess
 import re
 
+#This script collects MACsec statistics from the Linux kernel and parses them into a JSON format.
+#The script uses the 'ip' command to collect the MACsec statistics.
+
+
+#Obtain stats
 def get_macsec_stats():
     result = subprocess.run(['ip','-s','macsec','show'], capture_output=True, text=True)
     return result.stdout
+
+#Parse stats
 def parse_macsec_output(output):
     data = {}
     txsc_pattern = r'TXSC: (.*?)(?=RXSC:|$)'
@@ -24,6 +31,7 @@ def parse_macsec_output(output):
 
     return data
 
+#Further parse the TX stats
 def parse_tx_stats(tx_block):
     assoc_n=-1
     associations=[]
@@ -48,6 +56,7 @@ def parse_tx_stats(tx_block):
     }
     return [tx_data,associations]
 
+#Further parse the RX stats
 def parse_rx_stats(block):
 
     assoc_n=-1
@@ -74,10 +83,8 @@ def parse_rx_stats(block):
 
 def main():
     macsec_output=get_macsec_stats()
-    #print(macsec_output)
 
     macsec_data=parse_macsec_output(macsec_output)
-    #print(macsec_data)
 
     macsec_json = json.dumps(macsec_data, indent=4)
     print(macsec_json)
