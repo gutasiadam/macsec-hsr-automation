@@ -1,0 +1,16 @@
+#Inventory of the hosts on the ring
+hsr_ring:
+  hosts:
+    HSR_1:
+      ansible_host: 10.1.128.2
+      mac: 00:00:00:00:11:01
+    HSR_2:
+      ansible_host: 10.1.128.0
+      mac: 00:00:00:00:22:01
+    HSR_3:
+      ansible_host: 10.1.128.3
+      mac: 00:00:00:00:33:01
+  vars:
+    ansible_user: gutasi
+
+

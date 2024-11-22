@@ -1,0 +1,44 @@
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Generate random keys on the managed host
+      shell: "head -c 16 /dev/random | xxd -p"
+      register: generated_key
+      loop: "{{ groups['hsr_ring'] }}"
+      loop_control:
+        loop_var: host
+      vars:
+        key_store: {}
+
+    - name: Store each key with its respective host
+      set_fact:
+        key_store: "{{ key_store | combine({host: generated_key.stdout}) }}"
+        loop: "{{ groups['slave_hosts'] }}"
+        loop_control:
+          loop_var: host
+
+    - name: Display generated keys for each host (debugging)
+      debug:
+        msg: "Host: {{ item }} Key: {{ key_store[item] }}"
+        loop: "{{ groups['slave_hosts'] }}"
+        loop_control:
+          loop_var: item
+
+
+- name: Key distribute
+  gather_facts: no
+  hosts: hsr_ring
+  vars_files:
+    - vars.yaml
+  gather_facts: false
+  tasks:
+    - name: Ping my hosts
+      ansible.builtin.ping:
+    - name: Send generated key to slave hosts
+      copy:
+        content: "{{ hostvars['localhost'].generated_key.stdout }}"
+        dest: /tmp/key.txt
+
+    - name: Print message
+      ansible.builtin.debug:
+        msg: "{{ my_variable  }}"

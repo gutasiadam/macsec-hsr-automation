@@ -1,0 +1,14 @@
+---
+- name: Run prep_new_key and enable_sa on all hosts
+  hosts: hsr_ring
+  gather_facts: no
+
+  tasks:
+    - name: Run enable_sa.py on all hosts
+      shell: "python3 /home/gutasi/Documents/thesis/enable_sa.py"
+      ignore_errors: yes
+
+    - name: Run prep_new_key.py on all hosts except the one that sent new keys
+      shell: "python3 /home/gutasi/Documents/thesis/prep_new_key.py"
+      ignore_errors: yes
+      when: inventory_hostname != sender_host

@@ -1,0 +1,34 @@
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Generate random key on the managed host
+      shell: "head -c 16 /dev/random | xxd -p"
+      register: generated_key
+    - name: Display the generated key for debugging
+      debug:
+        msg: "Generated key: {{generated_key.stdout}}"
+
+- name: Key distribute
+  gather_facts: no
+  hosts: hsr_ring
+  vars_files:
+    - vars.yaml
+  gather_facts: false
+  tasks:
+    - name: Ping my hosts
+      ansible.builtin.ping:
+    - name: Send generated key to slave hosts
+      copy:
+        content: "{{ hostvars['localhost'].generated_key.stdout }}"
+        dest: /tmp/key.txt
+
+    - name: Show current macsec configuration on the host
+      shell: 'ip -s macsec show'
+      register: shell_data
+
+    - debug: 
+        var: shell_data.stdout
+
+    - name: Print message
+      ansible.builtin.debug:
+        msg: "{{ my_variable  }}"
