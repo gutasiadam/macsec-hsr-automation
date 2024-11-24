@@ -1,11 +1,31 @@
 #!/bin/bash
 #This script is run locally on the HSR nodes to set up MACsec
+# -k flag can be used to provide a key for MACsec
+# -ki flag can be used to provide a key id for MACsec
+
 
 # The interface to be used for MACsec
 INTERFACE = "hsr0"
 MAC_ADDRESS=$(ip link show $INTERFACE | grep link/ether | awk '{print $2}')
 KEY_ID="BBBB"
+KEY="0123456789abcdef0123456789abcdef"
 IP_ADDRESS="10.2.0.2/16"
+
+while getopts k: flag
+do
+    case "${flag}" in
+        k) KEY=${OPTARG};;
+    esac
+done
+
+while getopts ki: flag
+do
+    case "${flag}" in
+        ki) KEY_ID=${OPTARG};;
+    esac
+done
+
+
 
 # Create an array of the MAC addresses of the HSR nodes
 declare -a OTHER_MAC_ADDRESSES=("00:00:00:00:11:02" "00:00:00:00:33:02")
